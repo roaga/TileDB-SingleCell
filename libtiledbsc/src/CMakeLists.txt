@@ -45,8 +45,6 @@ message(STATUS "Building with commit hash ${BUILD_COMMIT_HASH}")
 ############################################################
 
 add_library(TILEDB_SC_OBJECTS OBJECT
-  ${CMAKE_CURRENT_SOURCE_DIR}/tiledbsc.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/util.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/soma.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/soma_collection.cc
 )
@@ -106,17 +104,18 @@ add_library(tiledbsc SHARED
   $<TARGET_OBJECTS:TILEDB_SC_OBJECTS>
 )
 
-#target_link_libraries(tiledbsc
-#  PRIVATE
-#  buffer_set
-#  managed_query
-#
-#)
+target_link_libraries(tiledbsc
+  PRIVATE
+  buffer_set
+  sc_arrow
+  query_result
+  managed_query
+)
 
 target_link_libraries(tiledbsc
   PUBLIC
     TileDB::tiledb_shared
-    # TBD spdlog::spdlog
+    util
 )
 
 # Sanitizer linker flags
@@ -165,6 +164,15 @@ set_target_properties(tiledbsc
   PROPERTIES
     PUBLIC_HEADER "${TILEDB_SC_PUBLIC_HEADERS}"
 )
+
+############################################################
+# Python API bindings
+############################################################
+
+if (TILEDBSC_ENABLE_PYTHON)
+  add_subdirectory(pyapi)
+endif()
+
 
 ############################################################
 # CLI executable target
