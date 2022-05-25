@@ -47,6 +47,8 @@ add_library(TILEDB_SC_OBJECTS OBJECT
   ${CMAKE_CURRENT_SOURCE_DIR}/tiledbsc.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/util.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/common.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/soma.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/soma_collection.cc
 )
 
 message(WARNING "Building without deprecation warnings")
@@ -169,6 +171,7 @@ set_target_properties(tiledbsc
 
 #  $<TARGET_OBJECTS:TILEDB_SC_OBJECTS>
 add_executable(tiledbsc-bin
+  $<TARGET_OBJECTS:TILEDB_SC_OBJECTS>
   ${CMAKE_CURRENT_SOURCE_DIR}/cli/cli.cc
 )
 
@@ -177,6 +180,9 @@ set_target_properties(tiledbsc-bin PROPERTIES OUTPUT_NAME tiledbsc)
 target_link_libraries(tiledbsc-bin
   PRIVATE
 )
+
+# TODO: fix linking to shared tiledbsc library
+# target_link_directories(tiledbsc-bin PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(tiledbsc-bin
   PUBLIC
