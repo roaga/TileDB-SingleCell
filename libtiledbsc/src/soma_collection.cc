@@ -30,17 +30,29 @@ map<string, string> SOMACollection::list_somas() {
 //===================================================================
 //= private non-static
 //===================================================================
-void SOMACollection::build_uri_map(Group& group) {
+void SOMACollection::build_uri_map(Group& group, string_view parent) {
     // Iterate through all members in the group
     for (uint64_t i = 0; i < group.member_count(); i++) {
         auto member = group.member(i);
-        auto path = member.name().value();
-        auto uri = member.uri();
+        auto path = parent.empty() ?
+                        member.name().value() :
+                        string(parent) + "/" + member.name().value();
 
-        // Since SOCO members may reference tiledb:// or file:// SOMAs outside
-        // of the SOCO relative directory structure, do not manipulate the group
-        // member uri path like we do in SOMA
-        uri_map_[path] = uri;
+        if (member.type() == Object::Type::Group) {
+            auto subgroup = Group(ctx_, member.uri(), TILEDB_READ);
+
+            // TODO: Check group metadata to see if subgroup is a SOMA or SOCO
+            // For now, infer the group is a SOMA if it contains an obs array
+            if (subgroup.member("obs").type() == Object::Type::Array) {
+                // Since SOCO members may reference tiledb:// or file://
+                // SOMAs outside of the SOCO relative directory structure,
+                // do not manipulate the group member uri like we do in SOMA
+                uri_map_[path] = member.uri();
+            } else {
+                // Member is a SOCO, call recursively
+                build_uri_map(subgroup);
+            }
+        }
     }
 }
 };  // namespace tiledbsc

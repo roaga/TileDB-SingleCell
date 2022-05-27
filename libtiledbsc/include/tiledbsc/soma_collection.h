@@ -34,7 +34,7 @@ class SOMACollection {
     string uri_;
     map<string, string> uri_map_;
 
-    void build_uri_map(Group& group);
+    void build_uri_map(Group& group, string_view parent = "");
 
     bool is_tiledb_uri(string_view uri) {
         return uri.find("tiledb://") == 0;
