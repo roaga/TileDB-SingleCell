@@ -45,6 +45,13 @@ class SOMACollection(TileDBGroup):
         )
 
     # ----------------------------------------------------------------
+    def add_uri(self, name: str, soma_uri: str) -> None:
+        """
+        Adds a `SOMA` to the `SOMACollection` by URI.
+        """
+        self._add_uri(name, soma_uri)
+
+    # ----------------------------------------------------------------
     def add(self, soma: SOMA) -> None:
         """
         Adds a `SOMA` to the `SOMACollection`.
