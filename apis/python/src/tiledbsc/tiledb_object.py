@@ -2,6 +2,7 @@ import tiledb
 from .soma_options import SOMAOptions
 
 from typing import Optional, List, Dict
+from typing import Optional
 
 import os
 
