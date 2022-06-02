@@ -7,7 +7,7 @@ set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 ############################################################
 
 find_package(TileDB_EP REQUIRED)
-# find_package(Spdlog_EP REQUIRED)
+find_package(Spdlog_EP REQUIRED)
 
 ############################################################
 # Get source commit hash
@@ -47,6 +47,7 @@ message(STATUS "Building with commit hash ${BUILD_COMMIT_HASH}")
 add_library(TILEDB_SC_OBJECTS OBJECT
   ${CMAKE_CURRENT_SOURCE_DIR}/soma.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/soma_collection.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/logger.cc
 )
 
 message(WARNING "Building without deprecation warnings")
@@ -66,7 +67,7 @@ target_include_directories(TILEDB_SC_OBJECTS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
     $<TARGET_PROPERTY:TileDB::tiledb_shared,INTERFACE_INCLUDE_DIRECTORIES>
-#    $<TARGET_PROPERTY:spdlog::spdlog,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:spdlog::spdlog,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 ############################################################
@@ -115,6 +116,7 @@ target_link_libraries(tiledbsc
 target_link_libraries(tiledbsc
   PUBLIC
     TileDB::tiledb_shared
+    spdlog::spdlog
     util
 )
 
@@ -192,7 +194,7 @@ target_link_libraries(tiledbsc-bin
 target_link_libraries(tiledbsc-bin
   PUBLIC
     #CLI11::CLI11
-    # spdlog::spdlog
+    spdlog::spdlog
     tiledbsc
     TileDB::tiledb_shared
 )
