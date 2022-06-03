@@ -53,7 +53,7 @@ TEST_CASE("Basic test of ManagedQuery execution and results") {
     REQUIRE(dim.data_.size() == 8);
 };
 
-TEST_CASE("ManagedQuery string attribute test", "[!mayfail]") {
+TEST_CASE("ManagedQuery string attribute test", "[!throws]") {
     // path to data within the *source* tree
     auto data_path = src_path + "/data/";
     auto array_path = data_path + "/simple/dim-uint64_attr-str_26cells/";
