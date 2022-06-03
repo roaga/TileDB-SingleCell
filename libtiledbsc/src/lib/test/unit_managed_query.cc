@@ -58,13 +58,17 @@ TEST_CASE("ManagedQuery string attribute test", "[!throws]") {
     auto data_path = src_path + "/data/";
     auto array_path = data_path + "/simple/dim-uint64_attr-str_26cells/";
 
+    REQUIRE(1 == 1);
     auto ctx = make_ctx();
 
+    REQUIRE(2 == 2);
     auto array = std::make_shared<tiledb::Array>(ctx, array_path, TILEDB_READ);
 
+    REQUIRE(3 == 3);
     auto mq = tiledbsc::ManagedQuery(array);
     mq.select_points(0, std::vector<uint64_t>{1, 3, 6});
     auto result = mq.execute();
+    REQUIRE(4 == 4);
 
     REQUIRE_THROWS(result->get("foobar"));
 
