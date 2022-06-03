@@ -282,9 +282,9 @@ if (TILEDBSC_TESTING)
 
     # TODO: fix failing windows test
     if (WIN32)
-        set(UNIT_MANAGED_QUERY_CMD $<TARGET_FILE:unit_managed_query> --nothrow)
+        set(UNIT_MANAGED_QUERY_CMD $<TARGET_FILE:unit_managed_query> -se)
     else()
-        set(UNIT_MANAGED_QUERY_CMD $<TARGET_FILE:unit_managed_query>)
+        set(UNIT_MANAGED_QUERY_CMD $<TARGET_FILE:unit_managed_query> -s)
     endif()    
 
     add_test(
