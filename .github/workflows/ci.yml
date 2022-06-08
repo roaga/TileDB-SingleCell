@@ -14,8 +14,8 @@ jobs:
         python-version: ['3.8']
         include:
           - runs-on: ubuntu-latest
-            cc: gcc-10
-            cxx: g++-10
+            cc: gcc-11
+            cxx: g++-11
     env:
       MACOSX_DEPLOYMENT_TARGET: 10.14
 
