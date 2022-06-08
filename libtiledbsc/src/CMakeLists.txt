@@ -47,7 +47,7 @@ message(STATUS "Building with commit hash ${BUILD_COMMIT_HASH}")
 add_library(TILEDB_SC_OBJECTS OBJECT
   ${CMAKE_CURRENT_SOURCE_DIR}/soma.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/soma_collection.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/soma_query.cc
+# TODO:  ${CMAKE_CURRENT_SOURCE_DIR}/soma_query.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/logger.cc
 )
 
