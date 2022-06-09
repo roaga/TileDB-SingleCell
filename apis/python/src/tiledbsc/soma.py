@@ -13,6 +13,7 @@ from tiledbsc import util
 from tiledbsc import util_ann
 
 from .soma_options import SOMAOptions
+from .soma_slice import SOMASlice
 from .tiledb_group import TileDBGroup
 from .assay_matrix_group import AssayMatrixGroup
 from .annotation_dataframe import AnnotationDataFrame
@@ -84,9 +85,9 @@ class SOMA(TileDBGroup):
             ctx=ctx,
         )
 
-        X_uri = os.path.join(self.uri, "X")
         obs_uri = os.path.join(self.uri, "obs")
         var_uri = os.path.join(self.uri, "var")
+        X_uri = os.path.join(self.uri, "X")
         obsm_uri = os.path.join(self.uri, "obsm")
         varm_uri = os.path.join(self.uri, "varm")
         obsp_uri = os.path.join(self.uri, "obsp")
@@ -174,3 +175,143 @@ class SOMA(TileDBGroup):
         An alias for `soma.var.ids()`.
         """
         return self.var.ids()
+
+    # ----------------------------------------------------------------
+    def dim_slice(
+        self,
+        slice_obs_ids,  # TODO: None means all ...
+        slice_var_ids,  # TODO: None means all ...
+    ) -> Dict:  # XXX TEMP
+        """
+        TODO
+        """
+
+        assert slice_obs_ids != None or slice_var_ids != None
+
+        if slice_obs_ids is None:
+            # Try the var slice first to see if that produces zero results -- if so we don't need to
+            # load the obs.
+            slice_var_df = self.var.dim_select(slice_var_ids)
+            if slice_var_df.shape[0] == 0:  # TODO: comment
+                return None
+            slice_obs_df = self.obs.dim_select(slice_obs_ids)
+            if slice_obs_df.shape[0] == 0:  # TODO: comment
+                return None
+
+        elif slice_var_ids is None:
+            # Try the obs slice first to see if that produces zero results -- if so we don't need to
+            # load the var.
+            slice_obs_df = self.obs.dim_select(slice_obs_ids)
+            if slice_obs_df.shape[0] == 0:  # TODO: comment
+                return None
+            slice_var_df = self.var.dim_select(slice_var_ids)
+            if slice_var_df.shape[0] == 0:  # TODO: comment
+                return None
+
+        else:
+            slice_obs_df = self.obs.dim_select(slice_obs_ids)
+            if slice_obs_df.shape[0] == 0:  # TODO: comment
+                return None
+            slice_var_df = self.var.dim_select(slice_var_ids)
+            if slice_var_df.shape[0] == 0:  # TODO: comment
+                return None
+
+        return self._assemble_soma_slice(
+            slice_obs_ids, slice_var_ids, slice_obs_df, slice_var_df
+        )
+
+    # ----------------------------------------------------------------
+    def attribute_filter(
+        self,
+        obs_attr_name: str,
+        obs_query_string: str,
+        var_attr_name: str,
+        var_query_string: str,
+        # TODO: const-at-top paradigm
+        obs_col_names_to_keep=[
+            "assay_ontology_term_id",
+            "sex_ontology_term_id",
+            ######"is_primary_data",
+            "organism_ontology_term_id",
+            "disease_ontology_term_id",
+            "ethnicity_ontology_term_id",
+            "development_stage_ontology_term_id",
+            "cell_type_ontology_term_id",
+            "tissue_ontology_term_id",
+            "cell_type",
+            "assay",
+            "disease",
+            "organism",
+            "sex",
+            "tissue",
+            "ethnicity",
+            "development_stage",
+        ],
+        # TODO: const-at-top paradigm
+        var_col_names_to_keep=[
+            "feature_biotype",
+            #####"feature_is_filtered",
+            "feature_name",
+            "feature_reference",
+        ],
+    ) -> Dict:  # XXX TEMP
+        """
+        TODO
+        """
+
+        # E.g. querying for 'cell_type == "blood"' but this SOMA doesn't have a cell_type column in
+        # its obs at all.
+        if not self.obs.has_attr_name(obs_attr_name):
+            return None
+
+        # E.g. querying for 'feature_name == "MT-CO3"' but this SOMA doesn't have a feature_name
+        # column in its var at all.
+        if not self.var.has_attr_name(var_attr_name):
+            return None
+
+        # E.g. querying for 'cell_type == "blood"' and this SOMA does have a cell_type column in its
+        # obs, but no rows with cell_type == "blood".
+        slice_obs_df = self.obs.attribute_filter(
+            obs_query_string, obs_col_names_to_keep
+        )
+        if slice_obs_df is None:
+            return None
+
+        # E.g. querying for 'feature_name == "MT-CO3"' and this SOMA does have a feature_name column
+        # in its var, but no rows with feature_name == "MT-CO3".
+        slice_var_df = self.var.attribute_filter(
+            var_query_string, var_col_names_to_keep
+        )
+        if slice_var_df is None:
+            return None
+
+        slice_obs_ids = list(slice_obs_df.index)
+        slice_var_ids = list(slice_var_df.index)
+
+        return self._assemble_soma_slice(
+            slice_obs_ids, slice_var_ids, slice_obs_df, slice_var_df
+        )
+
+    # ----------------------------------------------------------------
+    def _assemble_soma_slice(  # TODO: comment
+        self,
+        slice_obs_ids,
+        slice_var_ids,
+        slice_obs_df,
+        slice_var_df,
+    ) -> SOMASlice:
+
+        # XXX TEMP
+        print(self.uri, len(slice_obs_ids), len(slice_var_ids))
+
+        slice_X_data = self.X.data.dim_select(
+            slice_obs_ids, slice_var_ids
+        )  # TODO: pass through the group -- ?
+
+        # TODO: say why not obsm, varm, obsp, varp
+
+        return SOMASlice(
+            X=slice_X_data,
+            obs=slice_obs_df,
+            var=slice_var_df,
+        )

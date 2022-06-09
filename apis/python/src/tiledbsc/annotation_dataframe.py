@@ -149,7 +149,7 @@ class AnnotationDataFrame(TileDBArray):
         return df
 
     # ----------------------------------------------------------------
-    def from_dataframe(self, dataframe: pd.DataFrame, extent: int) -> None:
+    def from_dataframe(self, dataframe: pd.DataFrame, extent: int = 2048) -> None:
         """
         Populates the `obs` or `var` subgroup for a SOMA object.
 
